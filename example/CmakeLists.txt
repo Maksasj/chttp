@@ -1,0 +1,9 @@
+include_directories("../src")
+
+FILE(GLOB CHTTP_EXAMPLE_0_FILES example_0.c)
+add_executable(chttp_example_0 ${CHTTP_EXAMPLE_0_FILES})
+target_link_libraries(chttp_example_0 chttp)
+
+if(MINGW)
+    target_link_libraries(chttp_example_0 ws2_32)
+endif()
