@@ -11,6 +11,11 @@
     #include <arpa/inet.h>
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 typedef struct HTTPRequest {
 
 } HTTPRequest;
@@ -20,34 +25,17 @@ typedef struct HTTPResponse {
 } HTTPResponse;
 
 typedef struct HTTPServer {
+    int port;
 
+    struct sockaddr_in servaddr;
+    int l_socket;
 } HTTPServer;
 
-HTTPServer* http_new(int port);
+HTTPServer* http_new(unsigned int port);
 void http_free(HTTPServer* server);
 
 void http_route(HTTPServer* server, const char* route, void(*callback)(HTTPRequest* request));
 int http_running(HTTPServer* server);
 void http_listen(HTTPServer* server);
-
-HTTPServer* http_new(int port) {
-
-}
-
-void http_free(HTTPServer* server) {
-
-}
-
-void http_route(HTTPServer* server, const char* route, void(*callback)(HTTPRequest* request)) {
-
-}
-
-int http_running(HTTPServer* server) {
-
-}
-
-void http_listen(HTTPServer* server) {
-
-}
 
 #endif
