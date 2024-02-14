@@ -49,12 +49,12 @@ void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callba
 
         return;
     } else {
-        unsigned int size = ++server->routesCount * sizeof(HTTPServerRoute);
+        unsigned int size = (++server->routesCount) * sizeof(HTTPServerRoute);
 
         server->routes = realloc(server->routes,  size);
 
-        server->routes[size].route = route;
-        server->routes[size].callback = callback;
+        server->routes[server->routesCount - 1].route = route;
+        server->routes[server->routesCount - 1].callback = callback;
     }
 }
 
@@ -96,19 +96,24 @@ void http_listen(HTTPServer* server) {
     }
 
     HTTPConnection* connection = http_accept_connection(server);
-
     HTTPRequest* request = http_receive_request(connection);
+
+    for(int index = 0; index < server->routesCount; ++index) {
+        HTTPServerRoute route = server->routes[index];
+
+        if(strcmp(route.route, request->requestUri) == 0) {
+            HTTPResponse* response = route.callback(connection, request);
+            char* responseStr = http_stringify_response(response);
+
+            int sent = send(connection->c_socket,responseStr, strlen(responseStr),0);
+
+            http_free_response(response);
+            free(responseStr);
+            break;
+        }
+    }
+
     http_free_request(request);
-
-    HTTPResponse* response = http_ok_response(HTTP_1_1, "Hello, world from C!");
-    char* responseStr = http_stringify_response(response);
-
-    int r_len = send(connection->c_socket,responseStr, strlen(responseStr),0);
-
-    http_free_response(response);
-    free(responseStr);
-
-    // printf("IP: %s Sent: %d Received: %d\n",inet_ntoa(connection->clientaddr.sin_addr),s_len, r_len);
 
     close(connection->c_socket);
     free(connection);

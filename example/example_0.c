@@ -20,10 +20,10 @@ int main() {
 
 HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request) {
 
-    return http_ok_response(HTTP_1_1, "This is index page");
+    return http_ok_response(HTTP_1_1, "Hello, world from C, this is index page !");
 }
 
 HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request) {
 
-    return http_ok_response(HTTP_1_1, "This is about page");
+    return http_ok_response(HTTP_1_1, "Hello, world from C, this is an about page !");
 }

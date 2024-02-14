@@ -3,8 +3,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "http_version.h"
+
+typedef struct HTTPHeaders {
+    char* headers;
+} HTTPHeaders;
 
 typedef enum HTTPStatusCode {
     CONTINUE = 100,                         // Continue
@@ -65,7 +70,10 @@ char* http_stringify_version(HTTPVersion version);
 char* http_stringify_status(HTTPStatusCode code);
 char* http_stringify_response(HTTPResponse* response);
 
-HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, char* headers, char* message);
+void http_add_header(HTTPHeaders* headers, char* header);
+void http_add_default_headers(HTTPHeaders* headers, char* message);
+
+HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message);
 HTTPResponse* http_ok_response(HTTPVersion version, char* message);
 
 void http_free_response(HTTPResponse* response);

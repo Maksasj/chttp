@@ -47,21 +47,57 @@ char* http_stringify_status(HTTPStatusCode code) {
     return NULL;
 }
 
-HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, char* headers, char* message) {
+HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message) {
     HTTPResponse* response = malloc(sizeof(HTTPResponse));
 
     response->version = version;
     response->code = code;
-    response->headers = headers;
+
+    response->headers = malloc(strlen(headers->headers) + 1);
+    strcpy(response->headers, headers->headers);
+
     response->message = message;
 
     return response;
 }
 
+void http_add_header(HTTPHeaders* headers, char* header) {
+    if(headers->headers == NULL) {
+        headers->headers = malloc(strlen(header) + 3);
+        strcpy(headers->headers, header);
+        strcat(headers->headers, "\r\n");
+    } else {
+        unsigned int size = strlen(headers->headers) + sizeof (header) + 3;
+        headers->headers = realloc(headers->headers, size);
+        strcat(headers->headers, header);
+        strcat(headers->headers, "\r\n");
+    }
+}
+
+void http_add_default_headers(HTTPHeaders* headers, char* message) {
+    unsigned int size = strlen(message);
+    int contentLengthNumberLength = snprintf( NULL, 0, "%d", size);
+
+    char* contentLengthHeader = malloc(17 + contentLengthNumberLength);
+    strcpy(contentLengthHeader, "Content-Length: ");
+    snprintf( contentLengthHeader + 16, contentLengthNumberLength + 1, "%d", size);
+
+    http_add_header(headers, contentLengthHeader);
+    free(contentLengthHeader);
+
+    http_add_header(headers, "Connection: close");
+}
+
 HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
-    char* headers = "Content-Length: 20\r\nConnection: close\r\n";
+    HTTPHeaders* headers = malloc(sizeof(HTTPHeaders));
+    headers->headers = NULL;
+
+    http_add_default_headers(headers, message);
 
     HTTPResponse* response = http_response(version, OK, headers, message);
+
+    free(headers->headers);
+    free(headers);
 
     return response;
 }

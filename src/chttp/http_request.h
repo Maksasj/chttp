@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-#include "utils.h"
-
 #include "http_version.h"
 #include "http_method.h"
 
