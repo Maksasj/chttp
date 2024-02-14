@@ -76,10 +76,20 @@ HTTPConnection* http_accept_connection(HTTPServer* server) {
     return connection;
 }
 
-void http_listen(HTTPServer* server) {
-    char buffer[1024];
-    // char responsee[] = "HTTP/1.1 200 OK\r\nContent-Length: 20\r\nConnection: close\r\n\r\nHello, world from C!";
+HTTPRequest* http_receive_request(HTTPConnection* connection) {
+    #define HTTP_REQUEST_MAX_SIZE 8192
 
+    char* buffer = malloc(HTTP_REQUEST_MAX_SIZE);
+
+    int received = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
+
+    HTTPRequest* request = http_parse_request(buffer);
+    free(buffer);
+
+    return request;
+}
+
+void http_listen(HTTPServer* server) {
     if (listen(server->l_socket, 100) < 0){
         fprintf(stderr,"ERROR #4: error in listen().\n");
         exit(1);
@@ -87,7 +97,10 @@ void http_listen(HTTPServer* server) {
 
     HTTPConnection* connection = http_accept_connection(server);
 
-    int s_len = recv(connection->c_socket,buffer,sizeof(buffer),0);
+    HTTPRequest* request = http_receive_request(connection);
+
+
+    http_free_request(request);
 
     // char* array = strtok(buffer, "\r\n");
 //

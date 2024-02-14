@@ -1,13 +1,5 @@
 #include "http_response.h"
 
-char* http_stringify_version(HTTPVersion version) {
-    switch (version) {
-        case HTTP_1_1: { return "HTTP/1.1"; }
-    }
-
-    return NULL;
-}
-
 char* http_stringify_status(HTTPStatusCode code) {
     switch (code) {
         case CONTINUE: { return "Continue"; }

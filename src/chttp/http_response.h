@@ -4,9 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef enum HTTPVersion {
-    HTTP_1_1
-} HTTPVersion;
+#include "http_version.h"
 
 typedef enum HTTPStatusCode {
     CONTINUE = 100,                         // Continue
