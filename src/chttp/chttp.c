@@ -28,15 +28,34 @@ HTTPServer* http_new(unsigned int port) {
         exit(1);
     }
 
+    server->routes = NULL;
+    server->routesCount = 0;
+
     return server;
 }
 
 void http_free(HTTPServer* server) {
+    free(server->routes);
     free(server);
 }
 
-void http_route(HTTPServer* server, const char* route, void(*callback)(HTTPConnection* con, HTTPRequest* request)) {
+void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callback) {
+    if(server->routesCount == 0) {
+        server->routes = malloc(sizeof(HTTPServerRoute));
+        server->routesCount = 1;
 
+        server->routes[0].route = route;
+        server->routes[0].callback = callback;
+
+        return;
+    } else {
+        unsigned int size = ++server->routesCount * sizeof(HTTPServerRoute);
+
+        server->routes = realloc(server->routes,  size);
+
+        server->routes[size].route = route;
+        server->routes[size].callback = callback;
+    }
 }
 
 int http_running(HTTPServer* server) {
@@ -59,9 +78,9 @@ HTTPConnection* http_accept_connection(HTTPServer* server) {
 
 void http_listen(HTTPServer* server) {
     char buffer[1024];
-    char response[] = "HTTP/1.1 200 OK\r\nContent-Length: 20\r\nConnection: close\r\n\r\nHello, world from C!";
+    // char responsee[] = "HTTP/1.1 200 OK\r\nContent-Length: 20\r\nConnection: close\r\n\r\nHello, world from C!";
 
-    if (listen(server->l_socket, 5) < 0){
+    if (listen(server->l_socket, 100) < 0){
         fprintf(stderr,"ERROR #4: error in listen().\n");
         exit(1);
     }
@@ -69,9 +88,25 @@ void http_listen(HTTPServer* server) {
     HTTPConnection* connection = http_accept_connection(server);
 
     int s_len = recv(connection->c_socket,buffer,sizeof(buffer),0);
-    int r_len = send(connection->c_socket,response, sizeof(response),0);
 
-    printf("IP: %s Sent: %d Received: %d\n",inet_ntoa(connection->clientaddr.sin_addr),s_len, r_len);
+    // char* array = strtok(buffer, "\r\n");
+//
+//
+//
+    // while(array != NULL) {
+    //     printf( " %s\n", array );
+    //     array = strtok(NULL, "\r\n");
+    // }
+
+    HTTPResponse* response = http_ok_response(HTTP_1_1, "Hello, world from C!");
+    char* responseStr = http_stringify_response(response);
+
+    int r_len = send(connection->c_socket,responseStr, strlen(responseStr),0);
+
+    http_free_response(response);
+    free(responseStr);
+
+    // printf("IP: %s Sent: %d Received: %d\n",inet_ntoa(connection->clientaddr.sin_addr),s_len, r_len);
 
     close(connection->c_socket);
     free(connection);

@@ -1,7 +1,7 @@
 #include "chttp/chttp.h"
 
-void index_page(HTTPConnection* con, HTTPRequest* request);
-void about_page(HTTPConnection* con, HTTPRequest* request);
+HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request);
+HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request);
 
 int main() {
     HTTPServer* server = http_new(6969);
@@ -18,10 +18,12 @@ int main() {
     return 0;
 }
 
-void index_page(HTTPConnection* con, HTTPRequest* request) {
+HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request) {
 
+    return http_ok_response(HTTP_1_1, "This is index page");
 }
 
-void about_page(HTTPConnection* con, HTTPRequest* request) {
+HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request) {
 
+    return http_ok_response(HTTP_1_1, "This is about page");
 }

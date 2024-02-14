@@ -16,6 +16,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "http_request.h"
+#include "http_response.h"
+
 typedef struct HTTPConnection {
     int c_socket;
 
@@ -23,25 +26,27 @@ typedef struct HTTPConnection {
     socklen_t clientaddrlen;
 } HTTPConnection;
 
-typedef struct HTTPRequest {
+typedef HTTPResponse* (HTTPServerRouteCallback)(HTTPConnection* con, HTTPRequest* request);
 
-} HTTPRequest;
-
-typedef struct HTTPResponse {
-
-} HTTPResponse;
+typedef struct HTTPServerRoute {
+    char* route;
+    HTTPServerRouteCallback* callback;
+} HTTPServerRoute;
 
 typedef struct HTTPServer {
-    int port;
+    unsigned int port;
 
     struct sockaddr_in servaddr;
     int l_socket;
+
+    unsigned int routesCount;
+    HTTPServerRoute* routes;
 } HTTPServer;
 
 HTTPServer* http_new(unsigned int port);
 void http_free(HTTPServer* server);
 
-void http_route(HTTPServer* server, const char* route, void(*callback)(HTTPConnection* con, HTTPRequest* request));
+void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callback);
 int http_running(HTTPServer* server);
 void http_listen(HTTPServer* server);
 
