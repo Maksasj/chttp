@@ -98,18 +98,7 @@ void http_listen(HTTPServer* server) {
     HTTPConnection* connection = http_accept_connection(server);
 
     HTTPRequest* request = http_receive_request(connection);
-
-
     http_free_request(request);
-
-    // char* array = strtok(buffer, "\r\n");
-//
-//
-//
-    // while(array != NULL) {
-    //     printf( " %s\n", array );
-    //     array = strtok(NULL, "\r\n");
-    // }
 
     HTTPResponse* response = http_ok_response(HTTP_1_1, "Hello, world from C!");
     char* responseStr = http_stringify_response(response);

@@ -7,3 +7,7 @@ char* http_stringify_version(HTTPVersion version) {
 
     return NULL;
 }
+
+HTTPVersion http_unstringify_version(char* string) {
+    if(strcmp(string, "HTTP/1.1") != 0) return HTTP_1_1;
+}
