@@ -56,7 +56,8 @@ HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeader
     response->headers = malloc(strlen(headers->headers) + 1);
     strcpy(response->headers, headers->headers);
 
-    response->message = message;
+    response->message = malloc(strlen(message) + 1);
+    strcpy(response->message, message);
 
     return response;
 }
@@ -67,8 +68,9 @@ void http_add_header(HTTPHeaders* headers, char* header) {
         strcpy(headers->headers, header);
         strcat(headers->headers, "\r\n");
     } else {
-        unsigned int size = strlen(headers->headers) + sizeof (header) + 3;
+        unsigned int size = strlen(headers->headers) + strlen(header) + 3;
         headers->headers = realloc(headers->headers, size);
+
         strcat(headers->headers, header);
         strcat(headers->headers, "\r\n");
     }
@@ -78,10 +80,8 @@ void http_add_default_headers(HTTPHeaders* headers, char* message) {
     unsigned int size = strlen(message);
     int contentLengthNumberLength = snprintf( NULL, 0, "%d", size);
 
-    char* contentLengthHeader = malloc(17 + contentLengthNumberLength);
-    strcpy(contentLengthHeader, "Content-Length: ");
-    snprintf( contentLengthHeader + 16, contentLengthNumberLength + 1, "%d", size);
-
+    char *contentLengthHeader = malloc(17 + contentLengthNumberLength);
+    sprintf(contentLengthHeader, "Content-Length: %d", size);
     http_add_header(headers, contentLengthHeader);
     free(contentLengthHeader);
 
@@ -98,6 +98,37 @@ HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
 
     free(headers->headers);
     free(headers);
+
+    return response;
+}
+
+char* read_file(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Cannot open file: %s\n", filename);
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_END);
+    int length = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* buffer = (char*)malloc(length + 1);
+    if (buffer) {
+        fread(buffer, 1, length, file);
+        buffer[length] = '\0';
+    }
+
+    fclose(file);
+    return buffer;
+}
+
+HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName) {
+    char *buffer = read_file(fileName);
+
+    HTTPResponse* response = http_ok_response(version, buffer);
+
+    free(buffer);
 
     return response;
 }
@@ -144,8 +175,8 @@ char* http_stringify_response(HTTPResponse* response) {
 };
 
 void http_free_response(HTTPResponse* response) {
-    // free(response->headers);
-    // free(response->message);
+    free(response->headers);
+    free(response->message);
 
     free(response);
 }

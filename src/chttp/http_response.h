@@ -74,7 +74,9 @@ void http_add_header(HTTPHeaders* headers, char* header);
 void http_add_default_headers(HTTPHeaders* headers, char* message);
 
 HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message);
+
 HTTPResponse* http_ok_response(HTTPVersion version, char* message);
+HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName);
 
 void http_free_response(HTTPResponse* response);
 

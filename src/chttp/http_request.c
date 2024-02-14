@@ -19,9 +19,10 @@ HTTPRequest* http_parse_request(char* string) {
 
     // Request-Line
     unsigned int requestLineLength = found - string;
+
     char* requestLine = malloc(requestLineLength + 1);
     memcpy(requestLine, string, requestLineLength);
-    requestLine[requestLineLength + 1] = '\0';
+    requestLine[requestLineLength] = '\0';
 
     http_parse_request_line(request, requestLine);
 
@@ -34,7 +35,7 @@ HTTPRequest* http_parse_request(char* string) {
     unsigned int headersLength = emptyLine - headersBegin;
     request->headers = malloc(headersLength + 1);
     memcpy(request->headers, headersBegin, headersLength);
-    request->headers[headersLength + 1] = '\0';
+    request->headers[headersLength] = '\0';
 
     // Message-body
     char* messageBody = emptyLine + 4;

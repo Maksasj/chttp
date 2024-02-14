@@ -65,7 +65,7 @@ int http_running(HTTPServer* server) {
 HTTPConnection* http_accept_connection(HTTPServer* server) {
     HTTPConnection* connection = malloc(sizeof(HTTPConnection));
 
-    memset(&connection->clientaddr,0, sizeof(connection->clientaddr));
+    memset(&connection->clientaddr, 0, sizeof(connection->clientaddr));
 
     connection->clientaddrlen = sizeof(struct sockaddr);
     if ((connection->c_socket = accept(server->l_socket,(struct sockaddr*)&connection->clientaddr,&connection->clientaddrlen)) < 0){
@@ -90,7 +90,7 @@ HTTPRequest* http_receive_request(HTTPConnection* connection) {
 }
 
 void http_listen(HTTPServer* server) {
-    if (listen(server->l_socket, 100) < 0){
+    if (listen(server->l_socket, 5) < 0){
         fprintf(stderr,"ERROR #4: error in listen().\n");
         exit(1);
     }
