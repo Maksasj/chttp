@@ -1,52 +1,5 @@
 #include "http_response.h"
 
-char* http_stringify_status(HTTPStatusCode code) {
-    switch (code) {
-        case CONTINUE: { return "Continue"; }
-        case SWITCHING_PROTOCOLS: { return "Switching Protocols"; }
-        case OK: { return "OK"; }
-        case CREATED: { return "Created"; }
-        case ACCEPTED: { return "Accepted"; }
-        case NON_AUTHORITATIVE_INFORMATION: { return "Non-Authoritative Information"; }
-        case NO_CONTENT: { return "No Content"; }
-        case RESET_CONTENT: { return "Reset Content"; }
-        case PARTIAL_CONTENT: { return "Partial Content"; }
-        case MULTIPLE_CHOICES: { return "Multiple Choices"; }
-        case MOVED_PERMANENTLY: { return "Moved Permanently"; }
-        case FOUND: { return "Found"; }
-        case SEE_OTHER: { return "See Other"; }
-        case NOT_MODIFIED: { return "Not Modified"; }
-        case USE_PROXY: { return "Use Proxy"; }
-        case TEMPORARY_REDIRECT: { return "Temporary Redirect"; }
-        case BAD_REQUEST: { return "Bad Request"; }
-        case UNAUTHORIZED: { return "Unauthorized"; }
-        case PAYMENT_REQUIRED: { return "Payment Required"; }
-        case FORBIDDEN: { return "Forbidden"; }
-        case NOT_FOUND: { return "Not Found"; }
-        case METHOD_NOT_ALLOWED: { return "Method Not Allowed"; }
-        case NOT_ACCEPTABLE: { return "Not Acceptable"; }
-        case PROXY_AUTHENTICATION_REQUIRED: { return "Proxy Authentication Required"; }
-        case REQUEST_TIME_OUT: { return "Request Time-out"; }
-        case CONFLICT: { return "Conflict"; }
-        case GONE: { return "Gone"; }
-        case LENGTH_REQUIRED: { return "Length Required"; }
-        case PRECONDITION_FAILED: { return "Precondition Failed"; }
-        case REQUEST_ENTITY_TOO_LARGE: { return "Request Entity Too Large"; }
-        case REQUEST_URI_TOO_LARGE: { return "Request-URI Too Large"; }
-        case UNSUPPORTED_MEDIA_TYPE: { return "Unsupported Media Type"; }
-        case REQUESTED_RANGE_NOT_SATISFIABLE: { return "Requested range not satisfiable"; }
-        case EXPECTATION_FAILED: { return "Expectation Failed"; }
-        case INTERNAL_SERVER_ERROR: { return "Internal Server Error"; }
-        case NOT_IMPLEMENTED: { return "Not Implemented"; }
-        case BAD_GATEWAY: { return "Bad Gateway"; }
-        case SERVICE_UNAVAILABLE: { return "Service Unavailable"; }
-        case GATEWAY_TIME_OUT: { return "Gateway Time-out"; }
-        case HTTP_VERSION_NOT_SUPPORTED: { return "HTTP Version not supported"; }
-    }
-
-    return NULL;
-}
-
 HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message) {
     HTTPResponse* response = malloc(sizeof(HTTPResponse));
 
@@ -62,42 +15,13 @@ HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeader
     return response;
 }
 
-void http_add_header(HTTPHeaders* headers, char* header) {
-    if(headers->headers == NULL) {
-        headers->headers = malloc(strlen(header) + 3);
-        strcpy(headers->headers, header);
-        strcat(headers->headers, "\r\n");
-    } else {
-        unsigned int size = strlen(headers->headers) + strlen(header) + 3;
-        headers->headers = realloc(headers->headers, size);
-
-        strcat(headers->headers, header);
-        strcat(headers->headers, "\r\n");
-    }
-}
-
-void http_add_default_headers(HTTPHeaders* headers, char* message) {
-    unsigned int size = strlen(message);
-    int contentLengthNumberLength = snprintf( NULL, 0, "%d", size);
-
-    char *contentLengthHeader = malloc(17 + contentLengthNumberLength);
-    sprintf(contentLengthHeader, "Content-Length: %d", size);
-    http_add_header(headers, contentLengthHeader);
-    free(contentLengthHeader);
-
-    http_add_header(headers, "Connection: close");
-}
-
 HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
-    HTTPHeaders* headers = malloc(sizeof(HTTPHeaders));
-    headers->headers = NULL;
-
+    HTTPHeaders* headers = http_new_headers();
     http_add_default_headers(headers, message);
 
     HTTPResponse* response = http_response(version, OK, headers, message);
 
-    free(headers->headers);
-    free(headers);
+    http_free_headers(headers);
 
     return response;
 }
@@ -133,46 +57,54 @@ HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName) {
     return response;
 }
 
+unsigned long long calculate_string_response_length(HTTPResponse* response) {
+    unsigned int length = 0;
+
+    // Status Line
+    char* version = http_stringify_version(response->version);
+    length += strlen(version) + 1;
+
+    char status[4];
+    itoa(response->code, status, 10);
+    length += strlen(status) + 1;
+
+    char* statusPhrase = http_stringify_status(response->code);
+    length += strlen(statusPhrase) + 2;
+
+    // Headers
+    length += strlen(response->headers);
+
+    // Message-body
+    length += 2 + strlen(response->message);
+    
+    return length;
+}
+
 char* http_stringify_response(HTTPResponse* response) {
-    unsigned int responseLength = 0;
+    unsigned long long length = calculate_string_response_length(response);
 
     // Status Line
-        char* version = http_stringify_version(response->version);
-        responseLength += strlen(version) + 1;
+    char* result = malloc(length);
+    strcpy(result, http_stringify_version(response->version));
+    strcat(result, " ");
 
-        char status[4];
-        itoa(response->code, status, 10);
-        responseLength += strlen(status) + 1;
+    char status[4];
+    itoa(response->code, status, 10);
+    strcat(result, status);
+    strcat(result, " ");
 
-        char* statusPhrase = http_stringify_status(response->code);
-        responseLength += strlen(statusPhrase) + 2;
-
-    // Headers
-        responseLength += strlen(response->headers);
-
-    // Message-body
-        responseLength += 2 + strlen(response->message);
-
-    // Status Line
-        char* result = malloc(responseLength);
-        strcpy(result, version);
-        strcat(result, " ");
-
-        strcat(result, status);
-        strcat(result, " ");
-
-        strcat(result, statusPhrase);
-        strcat(result, "\r\n");
+    strcat(result, http_stringify_status(response->code));
+    strcat(result, "\r\n");
 
     // Headers
-        strcat(result, response->headers);
+    strcat(result, response->headers);
 
     // Message-body
-        strcat(result, "\r\n");
-        strcat(result, response->message);
+    strcat(result, "\r\n");
+    strcat(result, response->message);
 
     return result;
-};
+}
 
 void http_free_response(HTTPResponse* response) {
     free(response->headers);

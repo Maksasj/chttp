@@ -40,6 +40,7 @@ HTTPRequest* http_parse_request(char* string) {
     // Message-body
     char* messageBody = emptyLine + 4;
     unsigned int messageLength = strlen(messageBody);
+
     if(messageLength != 0) {
         request->message = malloc(messageLength + 1);
         strcpy(request->message, messageBody);
