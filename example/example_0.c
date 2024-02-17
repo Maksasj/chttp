@@ -4,7 +4,7 @@ HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request);
 HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request);
 
 int main() {
-    HTTPServer* server = http_new(6969);
+    HTTPServer* server = http_new_server(6969);
 
     http_route(server, "/", index_page);
     http_route(server, "/about", about_page);
@@ -13,7 +13,7 @@ int main() {
         http_listen(server);
     }
 
-    http_free(server);
+    http_free_server(server);
 
     return 0;
 }

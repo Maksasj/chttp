@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "chttp_utils.h"
+
 typedef enum HTTPVersion {
     HTTP_1_1
 } HTTPVersion;
