@@ -1,7 +1,6 @@
 #ifndef _CHTTP_SERVER_H_
 #define _CHTTP_SERVER_H_
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,15 +9,9 @@
 #include "chttp_net.h"
 #include "chttp_utils.h"
 
+#include "http_connection.h"
 #include "http_request.h"
 #include "http_response.h"
-
-typedef struct HTTPConnection {
-    int c_socket;
-
-    struct sockaddr_in clientaddr;
-    socklen_t clientaddrlen;
-} HTTPConnection;
 
 typedef HTTPResponse* (HTTPServerRouteCallback)(HTTPConnection* con, HTTPRequest* request);
 
@@ -39,6 +32,8 @@ typedef struct HTTPServer {
 
 HTTPServer* http_new_server(unsigned int port);
 void http_free_server(HTTPServer* server);
+
+HTTPRequest* http_receive_request(HTTPConnection* connection);
 
 void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callback);
 int http_running(HTTPServer* server);

@@ -26,6 +26,18 @@ HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
     return response;
 }
 
+HTTPResponse* http_not_found_response(HTTPVersion version) {
+    HTTPHeaders* headers = http_new_headers();
+
+    http_add_header(headers, "Connection: close");
+
+    HTTPResponse* response = http_response(version, NOT_FOUND, headers, "");
+
+    http_free_headers(headers);
+
+    return response;
+}
+
 char* read_file(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -104,6 +116,14 @@ char* http_stringify_response(HTTPResponse* response) {
     strcat(result, response->message);
 
     return result;
+}
+
+void http_send_response(HTTPResponse* response, int socket, int flags) {
+    char* responseStr = http_stringify_response(response);
+
+    int sent = send(socket,responseStr, strlen(responseStr),flags);
+
+    free(responseStr);
 }
 
 void http_free_response(HTTPResponse* response) {

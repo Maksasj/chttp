@@ -63,20 +63,6 @@ int http_running(HTTPServer* server) {
     return 1;
 }
 
-HTTPConnection* http_accept_connection(HTTPServer* server) {
-    HTTPConnection* connection = malloc(sizeof(HTTPConnection));
-
-    memset(&connection->clientaddr, 0, sizeof(connection->clientaddr));
-
-    connection->clientaddrlen = sizeof(struct sockaddr);
-    if ((connection->c_socket = accept(server->l_socket,(struct sockaddr*)&connection->clientaddr,&connection->clientaddrlen)) < 0){
-        fprintf(stderr,"ERROR #5: error occured accepting connection.\n");
-        exit(1);
-    }
-
-    return connection;
-}
-
 HTTPRequest* http_receive_request(HTTPConnection* connection) {
     #define HTTP_REQUEST_MAX_SIZE 8192
 
@@ -99,19 +85,24 @@ void http_listen(HTTPServer* server) {
     HTTPConnection* connection = http_accept_connection(server);
     HTTPRequest* request = http_receive_request(connection);
 
+    int found = 0;
+
     for(int index = 0; index < server->routesCount; ++index) {
         HTTPServerRoute route = server->routes[index];
 
-        if(strcmp(route.route, request->requestUri) == 0) {
-            HTTPResponse* response = route.callback(connection, request);
-            char* responseStr = http_stringify_response(response);
+        if(strcmp(route.route, request->requestUri) != 0) continue;
 
-            int sent = send(connection->c_socket,responseStr, strlen(responseStr),0);
+        found = 1;
 
-            http_free_response(response);
-            free(responseStr);
-            break;
-        }
+        HTTPResponse* response = route.callback(connection, request);
+        http_send_response(response, connection->c_socket, 0);
+        http_free_response(response);
+    }
+
+    if(!found) {
+        HTTPResponse* response = http_not_found_response(HTTP_1_1);
+        http_send_response(response, connection->c_socket, 0);
+        http_free_response(response);
     }
 
     http_free_request(request);
