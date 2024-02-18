@@ -1,0 +1,3 @@
+[submodule "3dparty/glob"]
+	path = 3dparty/glob
+	url = https://github.com/Maksasj/glob.h
