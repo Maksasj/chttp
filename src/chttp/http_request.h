@@ -6,6 +6,8 @@
 #include "http_version.h"
 #include "http_method.h"
 
+#define HTTP_REQUEST_MAX_SIZE 8192
+
 typedef struct HTTPRequest {
     // Request-Line
     HTTPMethod method;

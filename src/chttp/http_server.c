@@ -86,8 +86,6 @@ int http_running(HTTPServer* server) {
 }
 
 HTTPRequest* http_receive_request(HTTPConnection* connection) {
-    #define HTTP_REQUEST_MAX_SIZE 8192
-
     char* buffer = malloc(HTTP_REQUEST_MAX_SIZE);
 
     int received = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
