@@ -65,10 +65,8 @@ int http_str_route_filter(char* route, HTTPRequest* request) {
     return strcmp(route, request->requestUri);
 }
 
-int http_regex_route_filter(char* regex, HTTPRequest* request) {
-    CHTTP_LOG(SERVER_WARNING, "TODO");
-
-    return 0;
+int http_glob_route_filter(char* pattern, HTTPRequest* request) {
+    return glob_utf8(pattern, request->requestUri);
 }
 
 void http_str_route(HTTPServer* server, char* string, HTTPServerRouteCallback* callback) {
@@ -77,10 +75,10 @@ void http_str_route(HTTPServer* server, char* string, HTTPServerRouteCallback* c
     CHTTP_LOG(SERVER_INFO, "Added string route '%s'", string);
 }
 
-void http_regex_route(HTTPServer* server, char* regex, HTTPServerRouteCallback* callback) {
-    http_route(server, regex, http_regex_route_filter, callback);
+void http_glob_route(HTTPServer* server, char* pattern, HTTPServerRouteCallback* callback) {
+    http_route(server, pattern, http_glob_route_filter, callback);
 
-    CHTTP_LOG(SERVER_INFO, "Added regex route '%s'", regex);
+    CHTTP_LOG(SERVER_INFO, "Added glob route '%s'", pattern);
 }
 
 int http_running(HTTPServer* server) {

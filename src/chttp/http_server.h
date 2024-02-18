@@ -41,10 +41,10 @@ HTTPRequest* http_receive_request(HTTPConnection* connection);
 void http_route(HTTPServer* server, char* route, HTTPRouteFilterCallback* filter, HTTPServerRouteCallback* callback);
 
 void http_str_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callback);
-void http_regex_route(HTTPServer* server, char* regex, HTTPServerRouteCallback* callback);
+void http_glob_route(HTTPServer* server, char* pattern, HTTPServerRouteCallback* callback);
 
 int http_str_route_filter(char* string, HTTPRequest* request);
-int http_regex_route_filter(char* route, HTTPRequest* request);
+int http_glob_route_filter(char* route, HTTPRequest* request);
 
 int http_running(HTTPServer* server);
 void http_listen(HTTPServer* server);
