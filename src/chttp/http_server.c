@@ -32,6 +32,8 @@ HTTPServer* http_new_server(unsigned int port) {
     server->routesCount = 0;
     server->port = port;
 
+    CHTTP_LOG(SERVER_INFO, "Successfully initialized HTTP server");
+
     return server;
 }
 
@@ -47,8 +49,6 @@ void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callba
 
         server->routes[0].route = route;
         server->routes[0].callback = callback;
-
-        return;
     } else {
         unsigned int size = (++server->routesCount) * sizeof(HTTPServerRoute);
 
@@ -57,6 +57,8 @@ void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callba
         server->routes[server->routesCount - 1].route = route;
         server->routes[server->routesCount - 1].callback = callback;
     }
+
+    CHTTP_LOG(SERVER_INFO, "Added route '%s'", route);
 }
 
 int http_running(HTTPServer* server) {
@@ -85,6 +87,8 @@ void http_listen(HTTPServer* server) {
     HTTPConnection* connection = http_accept_connection(server);
     HTTPRequest* request = http_receive_request(connection);
 
+    CHTTP_LOG(SERVER_INFO, "User requests '%s' route", request->requestUri);
+
     int found = 0;
 
     for(int index = 0; index < server->routesCount; ++index) {
@@ -100,7 +104,7 @@ void http_listen(HTTPServer* server) {
     }
 
     if(!found) {
-        HTTPResponse* response = http_not_found_response(HTTP_1_1);
+        HTTPResponse* response = http_not_found_response(HTTP_1_1, "404 Not found");
         http_send_response(response, connection->c_socket, 0);
         http_free_response(response);
     }

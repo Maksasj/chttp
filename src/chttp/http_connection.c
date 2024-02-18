@@ -13,5 +13,7 @@ HTTPConnection* http_accept_connection(struct HTTPServer* server) {
         exit(1);
     }
 
+    CHTTP_LOG(SERVER_INFO, "Accepted connection");
+
     return connection;
 }

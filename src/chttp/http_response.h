@@ -21,7 +21,8 @@ typedef struct HTTPResponse {
 
 HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message);
 
-HTTPResponse* http_not_found_response(HTTPVersion version);
+
+HTTPResponse* http_not_found_response(HTTPVersion version, char* message);
 
 HTTPResponse* http_ok_response(HTTPVersion version, char* message);
 HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName);

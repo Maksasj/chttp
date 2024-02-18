@@ -26,12 +26,11 @@ HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
     return response;
 }
 
-HTTPResponse* http_not_found_response(HTTPVersion version) {
+HTTPResponse* http_not_found_response(HTTPVersion version, char* message) {
     HTTPHeaders* headers = http_new_headers();
+    http_add_default_headers(headers, message);
 
-    http_add_header(headers, "Connection: close");
-
-    HTTPResponse* response = http_response(version, NOT_FOUND, headers, "");
+    HTTPResponse* response = http_response(version, NOT_FOUND, headers, message);
 
     http_free_headers(headers);
 
@@ -40,6 +39,7 @@ HTTPResponse* http_not_found_response(HTTPVersion version) {
 
 char* read_file(const char* filename) {
     FILE* file = fopen(filename, "r");
+
     if (file == NULL) {
         printf("Cannot open file: %s\n", filename);
         return NULL;
@@ -49,13 +49,14 @@ char* read_file(const char* filename) {
     int length = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char* buffer = (char*)malloc(length + 1);
+    char* buffer = (char*) malloc(length + 1);
     if (buffer) {
         fread(buffer, 1, length, file);
         buffer[length] = '\0';
     }
 
     fclose(file);
+
     return buffer;
 }
 
@@ -122,6 +123,8 @@ void http_send_response(HTTPResponse* response, int socket, int flags) {
     char* responseStr = http_stringify_response(response);
 
     int sent = send(socket,responseStr, strlen(responseStr),flags);
+
+    CHTTP_LOG(SERVER_INFO, "Send HTTP response");
 
     free(responseStr);
 }
