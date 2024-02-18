@@ -42,12 +42,13 @@ void http_free_server(HTTPServer* server) {
     free(server);
 }
 
-void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callback) {
+void http_route(HTTPServer* server, char* route, HTTPRouteFilterCallback* filter, HTTPServerRouteCallback* callback) {
     if(server->routesCount == 0) {
         server->routes = malloc(sizeof(HTTPServerRoute));
         server->routesCount = 1;
 
         server->routes[0].route = route;
+        server->routes[0].filter = filter;
         server->routes[0].callback = callback;
     } else {
         unsigned int size = (++server->routesCount) * sizeof(HTTPServerRoute);
@@ -55,10 +56,31 @@ void http_route(HTTPServer* server, char* route, HTTPServerRouteCallback* callba
         server->routes = realloc(server->routes,  size);
 
         server->routes[server->routesCount - 1].route = route;
+        server->routes[server->routesCount - 1].filter = filter;
         server->routes[server->routesCount - 1].callback = callback;
     }
+}
 
-    CHTTP_LOG(SERVER_INFO, "Added route '%s'", route);
+int http_str_route_filter(char* route, HTTPRequest* request) {
+    return strcmp(route, request->requestUri);
+}
+
+int http_regex_route_filter(char* regex, HTTPRequest* request) {
+    CHTTP_LOG(SERVER_WARNING, "TODO");
+
+    return 0;
+}
+
+void http_str_route(HTTPServer* server, char* string, HTTPServerRouteCallback* callback) {
+    http_route(server, string, http_str_route_filter, callback);
+
+    CHTTP_LOG(SERVER_INFO, "Added string route '%s'", string);
+}
+
+void http_regex_route(HTTPServer* server, char* regex, HTTPServerRouteCallback* callback) {
+    http_route(server, regex, http_regex_route_filter, callback);
+
+    CHTTP_LOG(SERVER_INFO, "Added regex route '%s'", regex);
 }
 
 int http_running(HTTPServer* server) {
@@ -94,7 +116,7 @@ void http_listen(HTTPServer* server) {
     for(int index = 0; index < server->routesCount; ++index) {
         HTTPServerRoute route = server->routes[index];
 
-        if(strcmp(route.route, request->requestUri) != 0) continue;
+        if(route.filter(route.route, request) != 0) continue;
 
         found = 1;
 
@@ -104,6 +126,8 @@ void http_listen(HTTPServer* server) {
     }
 
     if(!found) {
+        CHTTP_LOG(SERVER_WARNING, "User requested resource not found");
+
         HTTPResponse* response = http_not_found_response(HTTP_1_1, "404 Not found");
         http_send_response(response, connection->c_socket, 0);
         http_free_response(response);

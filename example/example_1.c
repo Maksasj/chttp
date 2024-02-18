@@ -7,7 +7,7 @@ int main() {
     HTTPServer* server = http_new_server(6969);
 
     http_str_route(server, "/", index_page);
-    http_str_route(server, "/about", about_page);
+    http_regex_route(server, "/.*\\out$", about_page);
 
     while(http_running(server)) {
         http_listen(server);
