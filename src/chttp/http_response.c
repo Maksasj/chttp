@@ -38,7 +38,7 @@ HTTPResponse* http_not_found_response(HTTPVersion version, char* message) {
 }
 
 char* read_file(const char* filename) {
-    FILE* file = fopen(filename, "r");
+    FILE* file = fopen(filename, "rb");
 
     if (file == NULL) {
         printf("Cannot open file: %s\n", filename);
@@ -50,10 +50,9 @@ char* read_file(const char* filename) {
     fseek(file, 0, SEEK_SET);
 
     char* buffer = (char*) malloc(length + 1);
-    if (buffer) {
-        fread(buffer, 1, length, file);
-        buffer[length] = '\0';
-    }
+
+    fread(buffer, 1, length, file);
+    buffer[length] = '\0';
 
     fclose(file);
 
