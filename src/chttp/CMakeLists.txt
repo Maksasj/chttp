@@ -1,0 +1,2 @@
+FILE(GLOB_RECURSE CHTTP_SRC_FILES *.c)
+add_library(chttp STATIC ${CHTTP_SRC_FILES})
