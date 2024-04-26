@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "glob.h"
+
 typedef enum CHTTP_LOG_LEVEL {
     SERVER_INFO,
     SERVER_WARNING,
@@ -16,6 +18,7 @@ void chttp_log(CHTTP_LOG_LEVEL logLevel, const char *format, ...);
 
 #define CHTTP_LOG(logLevel, ...) chttp_log(logLevel, __VA_ARGS__)
 
+/*
 // Forward declaration of glob enum and glob_utf8 function
 typedef enum {
     GLOB_OOM_ERROR      = -4,
@@ -24,7 +27,7 @@ typedef enum {
     GLOB_UNMATCHED      = -1,
     GLOB_MATCHED        =  0,
 } Glob_Result;
-
-Glob_Result glob_utf8(const char *pattern, const char *text);
+*/
+// Glob_Result glob_utf8(const char *pattern, const char *text);
 
 #endif
