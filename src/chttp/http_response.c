@@ -76,8 +76,10 @@ unsigned long long calculate_string_response_length(HTTPResponse* response) {
     char* version = http_stringify_version(response->version);
     length += strlen(version) + 1;
 
-    char status[4];
-    itoa(response->code, status, 10);
+    char status[5];
+    // itoa(response->code, status, 10);
+    sprintf(status, "%d", response->code); // TODO
+
     length += strlen(status) + 1;
 
     char* statusPhrase = http_stringify_status(response->code);
@@ -100,8 +102,9 @@ char* http_stringify_response(HTTPResponse* response) {
     strcpy(result, http_stringify_version(response->version));
     strcat(result, " ");
 
-    char status[4];
-    itoa(response->code, status, 10);
+    char status[5];
+    // itoa(response->code, status, 10);
+      sprintf(status, "%d", response->code); // TODO
     strcat(result, status);
     strcat(result, " ");
 
