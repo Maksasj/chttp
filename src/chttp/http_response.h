@@ -21,11 +21,15 @@ typedef struct HTTPResponse {
     char* message;
 } HTTPResponse;
 
-HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message);
+typedef enum CHTTPResponseFlag {
+    CHTTP_FREE_MESSAGE = 0b0000000000000001
+} CHTTPResponseFlag; 
 
+HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message);
 
 HTTPResponse* http_not_found_response(HTTPVersion version, char* message);
 
+HTTPResponse* http_ok_response_flag(HTTPVersion version, char* message, CHTTPResponseFlag flag);
 HTTPResponse* http_ok_response(HTTPVersion version, char* message);
 HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName);
 

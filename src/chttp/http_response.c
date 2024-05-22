@@ -15,7 +15,7 @@ HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeader
     return response;
 }
 
-HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
+HTTPResponse* http_ok_response_flag(HTTPVersion version, char* message, CHTTPResponseFlag flag) {
     HTTPHeaders* headers = http_new_headers();
     http_add_default_headers(headers, message);
 
@@ -23,7 +23,14 @@ HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
 
     http_free_headers(headers);
 
+    // if(flag & CHTTP_FREE_MESSAGE)
+    //     free(message);
+
     return response;
+}
+
+HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
+    return http_ok_response_flag(version, message, 0);
 }
 
 HTTPResponse* http_not_found_response(HTTPVersion version, char* message) {
@@ -37,7 +44,7 @@ HTTPResponse* http_not_found_response(HTTPVersion version, char* message) {
     return response;
 }
 
-char* read_file(const char* filename) {
+char* chttp_read_file_internal(const char* filename) {
     FILE* file = fopen(filename, "rb");
 
     if (file == NULL) {
@@ -60,7 +67,7 @@ char* read_file(const char* filename) {
 }
 
 HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName) {
-    char *buffer = read_file(fileName);
+    char *buffer = chttp_read_file_internal(fileName);
 
     HTTPResponse* response = http_ok_response(version, buffer);
 
