@@ -121,10 +121,16 @@ char* http_stringify_response(HTTPResponse* response) {
     return result;
 }
 
-void http_send_response(HTTPResponse* response, int socket, int flags) {
+void http_send_response(HTTPResponse* response, HTTPConnection* connection) {
     char* responseStr = http_stringify_response(response);
 
-    int sent = send(socket,responseStr, strlen(responseStr),flags);
+    int result = send(connection->c_socket, responseStr, strlen(responseStr), 0);
+
+    if(result < 0) {
+        CHTTP_LOG(SERVER_WARNING, "While sending HTTP response, error occurred");
+        free(responseStr);
+        return;
+    }
 
     CHTTP_LOG(SERVER_INFO, "Send HTTP response");
 

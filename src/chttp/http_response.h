@@ -11,6 +11,8 @@
 #include "http_version.h"
 #include "http_status_code.h"
 
+#include "http_connection.h"
+
 typedef struct HTTPResponse {
     HTTPVersion version;
     HTTPStatusCode code;
@@ -30,7 +32,7 @@ HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName);
 unsigned long long calculate_string_response_length(HTTPResponse* response);
 char* http_stringify_response(HTTPResponse* response);
 
-void http_send_response(HTTPResponse* response, int socket, int flags);
+void http_send_response(HTTPResponse* response, HTTPConnection* connection);
 
 void http_free_response(HTTPResponse* response);
 

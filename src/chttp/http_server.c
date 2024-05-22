@@ -86,9 +86,19 @@ int http_running(HTTPServer* server) {
 }
 
 HTTPRequest* http_receive_request(HTTPConnection* connection) {
-    char* buffer = malloc(HTTP_REQUEST_MAX_SIZE);
+    char* buffer = (char*) malloc(HTTP_REQUEST_MAX_SIZE);
 
-    int received = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
+    int result = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
+
+    if(result == 0) {
+        CHTTP_LOG(SERVER_WARNING, "While receiving HTTP request, connection was closed");
+        return NULL;
+    }
+
+    if(result < 0) {
+        CHTTP_LOG(SERVER_ERROR, "While receiving HTTP request, error occurred");
+        return NULL;
+    }
 
     HTTPRequest* request = http_parse_request(buffer);
     free(buffer);
@@ -97,27 +107,42 @@ HTTPRequest* http_receive_request(HTTPConnection* connection) {
 }
 
 void http_listen(HTTPServer* server) {
+    CHTTP_LOG(SERVER_INFO, "Server listens for connections");
+
     if (listen(server->l_socket, 5) < 0){
         fprintf(stderr,"ERROR #4: error in listen().\n");
         exit(1);
     }
 
     HTTPConnection* connection = http_accept_connection(server);
+
+    if(connection == NULL) {
+        CHTTP_LOG(SERVER_WARNING, "Error occurred while accepting connection, closing connection");
+        return;
+    }
+
     HTTPRequest* request = http_receive_request(connection);
 
-    CHTTP_LOG(SERVER_INFO, "User requests '%s' route", request->requestUri);
+    if(request == NULL) {
+        CHTTP_LOG(SERVER_WARNING, "Error occurred while receiving HTTP request, closing connection");
+        chttp_connection_close(connection);
+        chttp_free_connection(connection);
+        return;
+    }
+
+    CHTTP_LOG(SERVER_INFO, "User %s requests '%s' route", connection->ipAddress, request->requestUri);
 
     int found = 0;
-
     for(int index = 0; index < server->routesCount; ++index) {
         HTTPServerRoute route = server->routes[index];
 
-        if(route.filter(route.route, request) != 0) continue;
+        if(route.filter(route.route, request) != 0) 
+            continue;
 
         found = 1;
 
         HTTPResponse* response = route.callback(connection, request);
-        http_send_response(response, connection->c_socket, 0);
+        http_send_response(response, connection);
         http_free_response(response);
     }
 
@@ -125,12 +150,14 @@ void http_listen(HTTPServer* server) {
         CHTTP_LOG(SERVER_WARNING, "User requested resource not found");
 
         HTTPResponse* response = http_not_found_response(HTTP_1_1, "404 Not found");
-        http_send_response(response, connection->c_socket, 0);
+        http_send_response(response, connection);
         http_free_response(response);
     }
 
-    http_free_request(request);
+    chttp_connection_close(connection);
 
-    close(connection->c_socket);
-    free(connection);
+    http_free_request(request);
+    chttp_free_connection(connection);
+
+    CHTTP_LOG(SERVER_INFO, "Closing HTTP connection");
 }
