@@ -13,4 +13,6 @@
 
 #include "http_server.h"
 
+#include "chttp_get_request_parsed.h"
+
 #endif

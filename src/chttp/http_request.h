@@ -22,7 +22,7 @@ typedef struct HTTPRequest {
 } HTTPRequest;
 
 void http_parse_request_line(HTTPRequest* request, char* line);
-HTTPRequest* http_parse_request(char* string);
+HTTPRequest* http_parse_request(char* buffer, unsigned int length);
 
 void http_free_request(HTTPRequest* request);
 

@@ -88,19 +88,19 @@ int http_running(HTTPServer* server) {
 HTTPRequest* http_receive_request(HTTPConnection* connection) {
     char* buffer = (char*) malloc(HTTP_REQUEST_MAX_SIZE);
 
-    int result = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
+    int length = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
 
-    if(result == 0) {
+    if(length == 0) {
         CHTTP_LOG(SERVER_WARNING, "While receiving HTTP request, connection was closed");
         return NULL;
     }
 
-    if(result < 0) {
+    if(length < 0) {
         CHTTP_LOG(SERVER_ERROR, "While receiving HTTP request, error occurred");
         return NULL;
     }
 
-    HTTPRequest* request = http_parse_request(buffer);
+    HTTPRequest* request = http_parse_request(buffer, length);
     free(buffer);
 
     return request;

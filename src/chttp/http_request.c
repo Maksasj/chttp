@@ -12,16 +12,16 @@ void http_parse_request_line(HTTPRequest* request, char* line) {
     request->version = http_unstringify_version(version);
 }
 
-HTTPRequest* http_parse_request(char* string) {
+HTTPRequest* http_parse_request(char* buffer, unsigned int length) {
     HTTPRequest* request = malloc(sizeof(HTTPRequest));
 
-    char* found = strstr(string, "\r\n");
+    char* found = strstr(buffer, "\r\n");
 
     // Request-Line
-    unsigned int requestLineLength = found - string;
+    unsigned int requestLineLength = found - buffer;
 
     char* requestLine = malloc(requestLineLength + 1);
-    memcpy(requestLine, string, requestLineLength);
+    memcpy(requestLine, buffer, requestLineLength);
     requestLine[requestLineLength] = '\0';
 
     http_parse_request_line(request, requestLine);
@@ -29,9 +29,9 @@ HTTPRequest* http_parse_request(char* string) {
     free(requestLine);
 
     // Headers
-    char* emptyLine = strstr(string, "\r\n\r\n");
+    char* emptyLine = strstr(buffer, "\r\n\r\n");
 
-    char* headersBegin = string + requestLineLength + 2;
+    char* headersBegin = buffer + requestLineLength + 2;
     unsigned int headersLength = emptyLine - headersBegin;
     request->headers = malloc(headersLength + 1);
     memcpy(request->headers, headersBegin, headersLength);
@@ -45,7 +45,8 @@ HTTPRequest* http_parse_request(char* string) {
         request->message = malloc(messageLength + 1);
         strcpy(request->message, messageBody);
     } else {
-        request->message = NULL;
+        request->message = malloc(1);
+        request->message[0] = '\0';
     }
 
     return request;
