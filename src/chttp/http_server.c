@@ -2,29 +2,24 @@
 
 HTTPServer* http_new_server(unsigned int port) {
     if ((port < 1) || (port > 65535)){
-        printf("ERROR #1: invalid port specified.\n");
+        CHTTP_LOG(SERVER_ERROR, "Invalid port specified");
         exit(1);
     }
-
-    #ifdef _WIN32
-        WSADATA data;
-        WSAStartup(MAKEWORD(2,2),&data);
-    #endif
 
     HTTPServer* server = malloc(sizeof(HTTPServer));
 
     if ((server->l_socket = socket(AF_INET, SOCK_STREAM,0))< 0){
-        fprintf(stderr,"ERROR #2: cannot create listening socket.\n");
+        CHTTP_LOG(SERVER_ERROR, "Cannot create listening socket");
         exit(1);
     }
 
-    memset(&server->servaddr,0, sizeof(server->servaddr));
+    memset(&server->servaddr, 0, sizeof(server->servaddr));
     server->servaddr.sin_family = AF_INET;
     server->servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server->servaddr.sin_port = htons(port);
 
-    if (bind (server->l_socket, (struct sockaddr *)&server->servaddr,sizeof(server->servaddr))<0){
-        fprintf(stderr,"ERROR #3: bind listening socket.\n");
+    if (bind(server->l_socket, (struct sockaddr *)&server->servaddr, sizeof(server->servaddr)) < 0){
+        CHTTP_LOG(SERVER_ERROR, "Error occurred while trying to bind listening socket");
         exit(1);
     }
 
