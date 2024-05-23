@@ -1,19 +1,19 @@
-#include "http_request.h"
+#include "chttp_request.h"
 
-void http_parse_request_line(HTTPRequest* request, char* line) {
+void chttp_parse_request_line(CHTTPRequest* request, char* line) {
     char* method = strtok(line, " ");
-    request->method = http_unstringify_method(method);
+    request->method = chttp_unstringify_method(method);
 
     char* requestUri = strtok(NULL, " ");
     request->requestUri = malloc(strlen(requestUri) + 1);
     strcpy(request->requestUri, requestUri);
 
     char* version = strtok(NULL, " ");
-    request->version = http_unstringify_version(version);
+    request->version = chttp_unstringify_version(version);
 }
 
-HTTPRequest* http_parse_request(char* buffer, unsigned int length) {
-    HTTPRequest* request = malloc(sizeof(HTTPRequest));
+CHTTPRequest* chttp_parse_request(char* buffer, unsigned int length) {
+    CHTTPRequest* request = malloc(sizeof(CHTTPRequest));
 
     char* found = strstr(buffer, "\r\n");
 
@@ -24,7 +24,7 @@ HTTPRequest* http_parse_request(char* buffer, unsigned int length) {
     memcpy(requestLine, buffer, requestLineLength);
     requestLine[requestLineLength] = '\0';
 
-    http_parse_request_line(request, requestLine);
+    chttp_parse_request_line(request, requestLine);
 
     free(requestLine);
 
@@ -52,7 +52,7 @@ HTTPRequest* http_parse_request(char* buffer, unsigned int length) {
     return request;
 }
 
-void http_free_request(HTTPRequest* request) {
+void chttp_free_request(CHTTPRequest* request) {
     free(request->requestUri);
     free(request->message);
     free(request->headers);

@@ -1,6 +1,6 @@
-#include "http_status_code.h"
+#include "chttp_status_code.h"
 
-char* http_stringify_status(HTTPStatusCode code) {
+char* chttp_stringify_status(HTTPStatusCode code) {
     switch (code) {
         case CONTINUE: { return "Continue"; }
         case SWITCHING_PROTOCOLS: { return "Switching Protocols"; }
@@ -36,7 +36,7 @@ char* http_stringify_status(HTTPStatusCode code) {
         case UNSUPPORTED_MEDIA_TYPE: { return "Unsupported Media Type"; }
         case REQUESTED_RANGE_NOT_SATISFIABLE: { return "Requested range not satisfiable"; }
         case EXPECTATION_FAILED: { return "Expectation Failed"; }
-        case INTERNAL_SERVER_ERROR: { return "Internal Server Error"; }
+        case INTERNAL_CHTTP_ERROR: { return "Internal Server Error"; }
         case NOT_IMPLEMENTED: { return "Not Implemented"; }
         case BAD_GATEWAY: { return "Bad Gateway"; }
         case SERVICE_UNAVAILABLE: { return "Service Unavailable"; }

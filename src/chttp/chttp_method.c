@@ -1,10 +1,10 @@
-#include "http_method.h"
+#include "chttp_method.h"
 
-HTTPMethod http_unstringify_method(char* string) {
+CHTTPMethod chttp_unstringify_method(char* string) {
     if(strcmp(string, "GET") == 0) return GET;
 }
 
-char* http_stringify_method(HTTPMethod method) {
+char* chttp_stringify_method(CHTTPMethod method) {
     if(method == GET)
         return "GET";
     

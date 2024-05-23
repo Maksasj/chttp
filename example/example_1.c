@@ -1,27 +1,27 @@
 #include "chttp/chttp.h"
 
-HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request);
-HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request);
+CHTTPResponse* index_page(CHTTPConnection* con, CHTTPRequest* request);
+CHTTPResponse* about_page(CHTTPConnection* con, CHTTPRequest* request);
 
 int main() {
-    HTTPServer* server = http_new_server(6969);
+    CHTTPServer* server = chttp_new_server(6969);
 
-    http_str_route(server, "/", index_page);
-    http_glob_route(server, "/*out", about_page);
+    chttp_str_route(server, "/", index_page);
+    chttp_glob_route(server, "/*out", about_page);
 
-    while(http_running(server)) {
-        http_listen(server);
+    while(chttp_running(server)) {
+        chttp_listen(server);
     }
 
-    http_free_server(server);
+    chttp_free_server(server);
 
     return 0;
 }
 
-HTTPResponse* index_page(HTTPConnection* con, HTTPRequest* request) {
-    return http_ok_response_file(HTTP_1_1, "index.html");
+CHTTPResponse* index_page(CHTTPConnection* con, CHTTPRequest* request) {
+    return chttp_ok_response_file(HTTP_1_1, "index.html");
 }
 
-HTTPResponse* about_page(HTTPConnection* con, HTTPRequest* request) {
-    return http_ok_response_file(HTTP_1_1, "about.html");
+CHTTPResponse* about_page(CHTTPConnection* con, CHTTPRequest* request) {
+    return chttp_ok_response_file(HTTP_1_1, "about.html");
 }

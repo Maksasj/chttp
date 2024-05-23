@@ -6,11 +6,11 @@
 
 #include "chttp_utils.h"
 
-typedef enum HTTPVersion {
+typedef enum CHTTPVersion {
     HTTP_1_1
-} HTTPVersion;
+} CHTTPVersion;
 
-char* http_stringify_version(HTTPVersion version);
-HTTPVersion http_unstringify_version(char* string);
+char* chttp_stringify_version(CHTTPVersion version);
+CHTTPVersion chttp_unstringify_version(char* string);
 
 #endif

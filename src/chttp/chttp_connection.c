@@ -1,9 +1,9 @@
-#include "http_connection.h"
+#include "chttp_connection.h"
 
-#include "http_server.h"
+#include "chttp_server.h"
 
-HTTPConnection* http_accept_connection(struct HTTPServer* server) {
-    HTTPConnection* connection = malloc(sizeof(HTTPConnection));
+CHTTPConnection* chttp_accept_connection(struct CHTTPServer* server) {
+    CHTTPConnection* connection = malloc(sizeof(CHTTPConnection));
     memset(&connection->clientaddr, 0, sizeof(connection->clientaddr));
 
     connection->clientaddrlen = sizeof(struct sockaddr);
@@ -16,15 +16,15 @@ HTTPConnection* http_accept_connection(struct HTTPServer* server) {
     struct sockaddr_in *ipv4 = (struct sockaddr_in *) (struct sockaddr*) (void*) &connection->clientaddr;
     inet_ntop(AF_INET, &(ipv4->sin_addr), connection->ipAddress, INET_ADDRSTRLEN);
 
-    CHTTP_LOG(SERVER_INFO, "Successfully accepted connection from %s", connection->ipAddress);
+    CHTTP_LOG(CHTTP_INFO, "Successfully accepted connection from %s", connection->ipAddress);
 
     return connection;
 }
 
-void chttp_free_connection(HTTPConnection* connection) {
+void chttp_free_connection(CHTTPConnection* connection) {
     free(connection);
 }
 
-void chttp_connection_close(HTTPConnection* connection) {
+void chttp_connection_close(CHTTPConnection* connection) {
     close(connection->c_socket);
 }

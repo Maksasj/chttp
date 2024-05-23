@@ -1,16 +1,16 @@
 #include "chttp_utils.h"
 
-char* chttp_stringify_log_level(CHTTP_LOG_LEVEL logLevel) {
+char* chttp_stringify_log_level(CHTTPLogLevel logLevel) {
     switch (logLevel) {
-        case SERVER_INFO:       { return "INFO"; }
-        case SERVER_WARNING:    { return "WARNING"; }
-        case SERVER_ERROR:      { return "ERROR"; }
+        case CHTTP_INFO:       { return "INFO"; }
+        case CHTTP_WARNING:    { return "WARNING"; }
+        case CHTTP_ERROR:      { return "ERROR"; }
     }
 
     return NULL;
 }
 
-void chttp_log(CHTTP_LOG_LEVEL logLevel, const char *format, ...) {
+void chttp_log(CHTTPLogLevel logLevel, const char *format, ...) {
     va_list args;
     va_start(args, format);
 

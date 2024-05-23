@@ -42,7 +42,7 @@ typedef enum HTTPStatusCode {
     REQUESTED_RANGE_NOT_SATISFIABLE = 416,  // Requested range not satisfiable
     EXPECTATION_FAILED = 417,               // Expectation Failed
 
-    INTERNAL_SERVER_ERROR = 500,            // Internal Server Error
+    INTERNAL_CHTTP_ERROR = 500,            // Internal Server Error
     NOT_IMPLEMENTED = 501,                  // Not Implemented
     BAD_GATEWAY = 502,                      // Bad Gateway
     SERVICE_UNAVAILABLE = 503,              // Service Unavailable
@@ -50,6 +50,6 @@ typedef enum HTTPStatusCode {
     HTTP_VERSION_NOT_SUPPORTED = 505,       // HTTP Version not supported
 } HTTPStatusCode;
 
-char* http_stringify_status(HTTPStatusCode code);
+char* chttp_stringify_status(HTTPStatusCode code);
 
 #endif

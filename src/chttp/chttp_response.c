@@ -1,7 +1,8 @@
-#include "http_response.h"
+#include "chttp_response.h"
+#include "chttp_status_code.h"
 
-HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeaders* headers, char* message) {
-    HTTPResponse* response = malloc(sizeof(HTTPResponse));
+CHTTPResponse* chttp_response(CHTTPVersion version, HTTPStatusCode code, CHTTPHeaders* headers, char* message) {
+    CHTTPResponse* response = malloc(sizeof(CHTTPResponse));
 
     response->version = version;
     response->code = code;
@@ -15,13 +16,13 @@ HTTPResponse* http_response(HTTPVersion version, HTTPStatusCode code, HTTPHeader
     return response;
 }
 
-HTTPResponse* http_ok_response_flag(HTTPVersion version, char* message, CHTTPResponseFlag flag) {
-    HTTPHeaders* headers = http_new_headers();
-    http_add_default_headers(headers, message);
+CHTTPResponse* chttp_ok_response_flag(CHTTPVersion version, char* message, CHTTPResponseFlag flag) {
+    CHTTPHeaders* headers = chttp_new_headers();
+    chttp_add_default_headers(headers, message);
 
-    HTTPResponse* response = http_response(version, OK, headers, message);
+    CHTTPResponse* response = chttp_response(version, OK, headers, message);
 
-    http_free_headers(headers);
+    chttp_free_headers(headers);
 
     // if(flag & CHTTP_FREE_MESSAGE)
     //     free(message);
@@ -29,17 +30,17 @@ HTTPResponse* http_ok_response_flag(HTTPVersion version, char* message, CHTTPRes
     return response;
 }
 
-HTTPResponse* http_ok_response(HTTPVersion version, char* message) {
-    return http_ok_response_flag(version, message, 0);
+CHTTPResponse* chttp_ok_response(CHTTPVersion version, char* message) {
+    return chttp_ok_response_flag(version, message, 0);
 }
 
-HTTPResponse* http_not_found_response(HTTPVersion version, char* message) {
-    HTTPHeaders* headers = http_new_headers();
-    http_add_default_headers(headers, message);
+CHTTPResponse* chttp_not_found_response(CHTTPVersion version, char* message) {
+    CHTTPHeaders* headers = chttp_new_headers();
+    chttp_add_default_headers(headers, message);
 
-    HTTPResponse* response = http_response(version, NOT_FOUND, headers, message);
+    CHTTPResponse* response = chttp_response(version, NOT_FOUND, headers, message);
 
-    http_free_headers(headers);
+    chttp_free_headers(headers);
 
     return response;
 }
@@ -66,21 +67,21 @@ char* chttp_read_file_internal(const char* filename) {
     return buffer;
 }
 
-HTTPResponse* http_ok_response_file(HTTPVersion version, char* fileName) {
+CHTTPResponse* chttp_ok_response_file(CHTTPVersion version, char* fileName) {
     char *buffer = chttp_read_file_internal(fileName);
 
-    HTTPResponse* response = http_ok_response(version, buffer);
+    CHTTPResponse* response = chttp_ok_response(version, buffer);
 
     free(buffer);
 
     return response;
 }
 
-unsigned long long calculate_string_response_length(HTTPResponse* response) {
+unsigned long long chttp_calculate_string_response_length(CHTTPResponse* response) {
     unsigned int length = 0;
 
     // Status Line
-    char* version = http_stringify_version(response->version);
+    char* version = chttp_stringify_version(response->version);
     length += strlen(version) + 1;
 
     char status[5];
@@ -89,7 +90,7 @@ unsigned long long calculate_string_response_length(HTTPResponse* response) {
 
     length += strlen(status) + 1;
 
-    char* statusPhrase = http_stringify_status(response->code);
+    char* statusPhrase = chttp_stringify_status(response->code);
     length += strlen(statusPhrase) + 2;
 
     // Headers
@@ -101,12 +102,12 @@ unsigned long long calculate_string_response_length(HTTPResponse* response) {
     return length;
 }
 
-char* http_stringify_response(HTTPResponse* response) {
-    unsigned long long length = calculate_string_response_length(response);
+char* chttp_stringify_response(CHTTPResponse* response) {
+    unsigned long long length = chttp_calculate_string_response_length(response);
 
     // Status Line
     char* result = malloc(length);
-    strcpy(result, http_stringify_version(response->version));
+    strcpy(result, chttp_stringify_version(response->version));
     strcat(result, " ");
 
     char status[5];
@@ -115,7 +116,7 @@ char* http_stringify_response(HTTPResponse* response) {
     strcat(result, status);
     strcat(result, " ");
 
-    strcat(result, http_stringify_status(response->code));
+    strcat(result, chttp_stringify_status(response->code));
     strcat(result, "\r\n");
 
     // Headers
@@ -128,23 +129,23 @@ char* http_stringify_response(HTTPResponse* response) {
     return result;
 }
 
-void http_send_response(HTTPResponse* response, HTTPConnection* connection) {
-    char* responseStr = http_stringify_response(response);
+void chttp_send_response(CHTTPResponse* response, CHTTPConnection* connection) {
+    char* responseStr = chttp_stringify_response(response);
 
     int result = send(connection->c_socket, responseStr, strlen(responseStr), 0);
 
     if(result < 0) {
-        CHTTP_LOG(SERVER_WARNING, "While sending HTTP response, error occurred");
+        CHTTP_LOG(CHTTP_WARNING, "While sending HTTP response, error occurred");
         free(responseStr);
         return;
     }
 
-    CHTTP_LOG(SERVER_INFO, "Send HTTP response");
+    CHTTP_LOG(CHTTP_INFO, "Send HTTP response");
 
     free(responseStr);
 }
 
-void http_free_response(HTTPResponse* response) {
+void chttp_free_response(CHTTPResponse* response) {
     free(response->headers);
     free(response->message);
 

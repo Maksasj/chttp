@@ -1,6 +1,6 @@
-#include "http_version.h"
+#include "chttp_version.h"
 
-char* http_stringify_version(HTTPVersion version) {
+char* chttp_stringify_version(CHTTPVersion version) {
     switch (version) {
         case HTTP_1_1: { return "HTTP/1.1"; }
     }
@@ -8,6 +8,6 @@ char* http_stringify_version(HTTPVersion version) {
     return NULL;
 }
 
-HTTPVersion http_unstringify_version(char* string) {
+CHTTPVersion chttp_unstringify_version(char* string) {
     if(strcmp(string, "HTTP/1.1") != 0) return HTTP_1_1;
 }

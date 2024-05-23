@@ -9,15 +9,15 @@
 #include "glob.h"
 */
 
-typedef enum CHTTP_LOG_LEVEL {
-    SERVER_INFO,
-    SERVER_WARNING,
-    SERVER_ERROR
-} CHTTP_LOG_LEVEL;
+typedef enum CHTTPLogLevel {
+    CHTTP_INFO,
+    CHTTP_WARNING,
+    CHTTP_ERROR
+} CHTTPLogLevel;
 
-char* chttp_stringify_log_level(CHTTP_LOG_LEVEL logLevel);
+char* chttp_stringify_log_level(CHTTPLogLevel logLevel);
 
-void chttp_log(CHTTP_LOG_LEVEL logLevel, const char *format, ...);
+void chttp_log(CHTTPLogLevel logLevel, const char *format, ...);
 
 #define CHTTP_LOG(logLevel, ...) chttp_log(logLevel, __VA_ARGS__)
 

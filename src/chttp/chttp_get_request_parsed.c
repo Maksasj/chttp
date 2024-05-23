@@ -5,7 +5,7 @@ void chttp_push_get_field_to_parsed(CHTTPGetRequestParsed* parsed, CHTTPGetField
     ++parsed->fieldCount;
 }
 
-CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
+CHTTPGetRequestParsed* chttp_parse_get_request(CHTTPRequest* request) {
     unsigned int uriLength = strlen(request->requestUri);
 
     // Lets firstly replace '+' with ' '
@@ -20,7 +20,7 @@ CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
         ++start;
 
         if(*start == '\0') {
-            CHTTP_LOG(SERVER_WARNING, "Error occurred while parsing GET request, GET request have emtpy body");
+            CHTTP_LOG(CHTTP_WARNING, "Error occurred while parsing GET request, GET request have emtpy body");
             return NULL;
         }
     }
@@ -30,7 +30,7 @@ CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
     // Lets check if GET request body present
     unsigned length = strlen(start);
     if(length == 0) {
-        CHTTP_LOG(SERVER_WARNING, "Error occurred while parsing GET request, GET request have emtpy body");
+        CHTTP_LOG(CHTTP_WARNING, "Error occurred while parsing GET request, GET request have emtpy body");
         return NULL;
     }
 
@@ -50,7 +50,7 @@ CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
 
             int nextIndex = i + 1;
             if(nextIndex >= length) {
-                CHTTP_LOG(SERVER_WARNING, "Error occurred while parsing GET request, GET request last field started, but empty");
+                CHTTP_LOG(CHTTP_WARNING, "Error occurred while parsing GET request, GET request last field started, but empty");
             } else {
                 fieldPairs[fieldCount] = buffer + nextIndex;
                 ++fieldCount;
@@ -73,7 +73,7 @@ CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
         }
 
         if(*fieldValue == '\0') {
-            CHTTP_LOG(SERVER_WARNING, "Error occurred while parsing GET request, field value is empty");
+            CHTTP_LOG(CHTTP_WARNING, "Error occurred while parsing GET request, field value is empty");
             continue;;
         }
 
@@ -84,7 +84,7 @@ CHTTPGetRequestParsed* chttp_parse_get_request(HTTPRequest* request) {
         const unsigned int fieldValueLength = strlen(fieldValue); 
         
         if(fieldValueLength == 0) {
-            CHTTP_LOG(SERVER_WARNING, "Error occurred while parsing GET request, field value is empty");
+            CHTTP_LOG(CHTTP_WARNING, "Error occurred while parsing GET request, field value is empty");
             break;
         }
 
