@@ -7,11 +7,12 @@
 struct CHTTPServer;
 
 typedef struct CHTTPConnection {
-    int c_socket;
+    int socket;
 
     struct sockaddr_in clientaddr;
     char ipAddress[INET_ADDRSTRLEN];
     socklen_t clientaddrlen;
+    struct CHTTPServer* server;
 } CHTTPConnection;
 
 CHTTPConnection* chttp_accept_connection(struct CHTTPServer* server);

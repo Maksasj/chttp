@@ -8,7 +8,7 @@ CHTTPConnection* chttp_accept_connection(struct CHTTPServer* server) {
 
     connection->clientaddrlen = sizeof(struct sockaddr);
     
-    if ((connection->c_socket = accept(server->l_socket, (struct sockaddr*)&connection->clientaddr,&connection->clientaddrlen)) < 0){
+    if ((connection->socket = accept(server->socket, (struct sockaddr*)&connection->clientaddr,&connection->clientaddrlen)) < 0){
         free(connection);
         return NULL;
     }
@@ -18,6 +18,8 @@ CHTTPConnection* chttp_accept_connection(struct CHTTPServer* server) {
 
     CHTTP_LOG(CHTTP_INFO, "Successfully accepted connection from %s", connection->ipAddress);
 
+    connection->server = server;
+
     return connection;
 }
 
@@ -26,5 +28,5 @@ void chttp_free_connection(CHTTPConnection* connection) {
 }
 
 void chttp_connection_close(CHTTPConnection* connection) {
-    close(connection->c_socket);
+    close(connection->socket);
 }

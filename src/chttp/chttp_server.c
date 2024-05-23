@@ -8,7 +8,7 @@ CHTTPServer* chttp_new_server(unsigned int port) {
 
     CHTTPServer* server = malloc(sizeof(CHTTPServer));
 
-    if ((server->l_socket = socket(AF_INET, SOCK_STREAM,0))< 0){
+    if ((server->socket = socket(AF_INET, SOCK_STREAM,0))< 0){
         CHTTP_LOG(CHTTP_ERROR, "Cannot create listening socket");
         exit(1);
     }
@@ -18,7 +18,7 @@ CHTTPServer* chttp_new_server(unsigned int port) {
     server->servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server->servaddr.sin_port = htons(port);
 
-    if (bind(server->l_socket, (struct sockaddr *)&server->servaddr, sizeof(server->servaddr)) < 0){
+    if (bind(server->socket, (struct sockaddr *)&server->servaddr, sizeof(server->servaddr)) < 0){
         CHTTP_LOG(CHTTP_ERROR, "Error occurred while trying to bind listening socket");
         exit(1);
     }
@@ -28,6 +28,8 @@ CHTTPServer* chttp_new_server(unsigned int port) {
     server->port = port;
 
     CHTTP_LOG(CHTTP_INFO, "Successfully initialized HTTP server");
+
+    server->userPtr = NULL;
 
     return server;
 }
@@ -83,7 +85,7 @@ int chttp_running(CHTTPServer* server) {
 CHTTPRequest* chttp_receive_request(CHTTPConnection* connection) {
     char* buffer = (char*) malloc(HTTP_REQUEST_MAX_SIZE);
 
-    int length = recv(connection->c_socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
+    int length = recv(connection->socket, buffer , HTTP_REQUEST_MAX_SIZE , 0);
 
     if(length == 0) {
         CHTTP_LOG(CHTTP_WARNING, "While receiving HTTP request, connection was closed");
@@ -104,7 +106,7 @@ CHTTPRequest* chttp_receive_request(CHTTPConnection* connection) {
 void chttp_listen(CHTTPServer* server) {
     CHTTP_LOG(CHTTP_INFO, "Server listens for connections");
 
-    if (listen(server->l_socket, 5) < 0){
+    if (listen(server->socket, 5) < 0){
         fprintf(stderr,"ERROR #4: error in listen().\n");
         exit(1);
     }
@@ -155,4 +157,12 @@ void chttp_listen(CHTTPServer* server) {
     chttp_free_connection(connection);
 
     CHTTP_LOG(CHTTP_INFO, "Closing HTTP connection");
+}
+
+void chttp_server_set_user_pointer(CHTTPServer* server, void* userPtr) {
+    server->userPtr = userPtr; 
+}
+
+void* chttp_server_get_user_pointer(CHTTPServer* server) {
+    return server->userPtr;
 }

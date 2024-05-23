@@ -27,10 +27,12 @@ typedef struct CHTTPServer {
     unsigned int port;
 
     struct sockaddr_in servaddr;
-    int l_socket;
+    int socket;
 
     unsigned int routesCount;
     CHTTPServerRoute* routes;
+
+    void* userPtr;
 } CHTTPServer;
 
 CHTTPServer* chttp_new_server(unsigned int port);
@@ -39,6 +41,9 @@ void chttp_free_server(CHTTPServer* server);
 CHTTPRequest* chttp_receive_request(CHTTPConnection* connection);
 
 void chttp_route(CHTTPServer* server, char* route, CHTTPRouteFilterCallback* filter, CHTTPServerRouteCallback* callback);
+
+void chttp_server_set_user_pointer(CHTTPServer* server, void* userPtr);
+void* chttp_server_get_user_pointer(CHTTPServer* server);
 
 void chttp_str_route(CHTTPServer* server, char* route, CHTTPServerRouteCallback* callback);
 void chttp_glob_route(CHTTPServer* server, char* pattern, CHTTPServerRouteCallback* callback);

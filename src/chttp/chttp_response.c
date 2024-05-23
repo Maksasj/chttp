@@ -132,7 +132,7 @@ char* chttp_stringify_response(CHTTPResponse* response) {
 void chttp_send_response(CHTTPResponse* response, CHTTPConnection* connection) {
     char* responseStr = chttp_stringify_response(response);
 
-    int result = send(connection->c_socket, responseStr, strlen(responseStr), 0);
+    int result = send(connection->socket, responseStr, strlen(responseStr), 0);
 
     if(result < 0) {
         CHTTP_LOG(CHTTP_WARNING, "While sending HTTP response, error occurred");
