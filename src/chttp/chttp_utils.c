@@ -14,7 +14,7 @@ void chttp_log(CHTTPLogLevel logLevel, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    printf("[%s] ", chttp_stringify_log_level(logLevel));
+    printf("[CHTTP][%s] ", chttp_stringify_log_level(logLevel));
     vprintf(format, args);
     printf("\n");
 

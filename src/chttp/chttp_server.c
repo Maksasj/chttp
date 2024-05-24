@@ -107,8 +107,8 @@ void chttp_listen(CHTTPServer* server) {
     CHTTP_LOG(CHTTP_INFO, "Server listens for connections");
 
     if (listen(server->socket, 5) < 0){
-        fprintf(stderr,"ERROR #4: error in listen().\n");
-        exit(1);
+        CHTTP_LOG(CHTTP_ERROR, "Error occurred while listening for new connections");
+        return;
     }
 
     CHTTPConnection* connection = chttp_accept_connection(server);
