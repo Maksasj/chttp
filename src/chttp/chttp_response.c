@@ -136,8 +136,6 @@ void chttp_send_response(CHTTPResponse* response, CHTTPConnection* connection) {
 
     unsigned int responseLength = strlen(responseStr);
 
-    printf("'%s'", responseStr);
-
     int result = send(connection->socket, responseStr, responseLength, 0);
 
     if(result < 0) {
@@ -149,8 +147,6 @@ void chttp_send_response(CHTTPResponse* response, CHTTPConnection* connection) {
     CHTTP_LOG(CHTTP_INFO, "Send HTTP response");
 
     free(responseStr);
-
-    printf("CLEARED MEMORY !\n");
 }
 
 void chttp_free_response(CHTTPResponse* response) {
